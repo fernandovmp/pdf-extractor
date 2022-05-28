@@ -11,6 +11,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IFilaPdf, FilaExtracao>();
         services.AddSingleton<IEnviarPdf, EnviarPdfExtracao>();
         services.AddSingleton<IStorage, Storage>();
+        services.AddSingleton<IExtracaoPdfRepository, ExtracaoPdfRepository>();
     })
     .Build();
 

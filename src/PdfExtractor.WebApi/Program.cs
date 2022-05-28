@@ -7,6 +7,7 @@ builder.Services.Configure<Configuracao>(builder.Configuration.GetSection("Confi
 builder.Services.AddScoped<IFilaPdf, FilaExtracao>();
 builder.Services.AddScoped<IEnviarPdf, EnviarPdfExtracao>();
 builder.Services.AddScoped<IStorage, Storage>();
+builder.Services.AddScoped<IExtracaoPdfRepository, ExtracaoPdfRepository>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

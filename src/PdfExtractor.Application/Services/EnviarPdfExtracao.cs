@@ -10,12 +10,14 @@ public class EnviarPdfExtracao : IEnviarPdf
     private readonly IFilaPdf _filaExtracao;
     private readonly IOptions<Configuracao> _configuracao;
     private readonly IStorage _storage;
+    private readonly IExtracaoPdfRepository _extracaoPdfRepository;
 
-    public EnviarPdfExtracao(IFilaPdf filaExtracao, IOptions<Configuracao> configuracao, IStorage storage)
+    public EnviarPdfExtracao(IFilaPdf filaExtracao, IOptions<Configuracao> configuracao, IStorage storage, IExtracaoPdfRepository extracaoPdfRepository)
     {
         _filaExtracao = filaExtracao;
         _configuracao = configuracao;
         _storage = storage;
+        _extracaoPdfRepository = extracaoPdfRepository;
     }
 
     public async Task<Guid> EnviarPdfAsync(EnviarPdfDTO enviarPdfDTO)
@@ -36,6 +38,12 @@ public class EnviarPdfExtracao : IEnviarPdf
                 Id = id,
                 NomeArquivo = enviarPdfDTO.NomeArquivo
             };
+            await _extracaoPdfRepository.Adicionar(new ExtracaoPdf
+            {
+                Id = id,
+                NomeArquivo = enviarPdfDTO.NomeArquivo ?? id.ToString("N"),
+                Status = "pendente"
+            }).ConfigureAwait(false);
             await _filaExtracao.ColocarNaFilaAsync(pdfDto)
                 .ConfigureAwait(false);
         }

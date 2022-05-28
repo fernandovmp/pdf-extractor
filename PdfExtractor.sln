@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfExtractor.Application", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfExtractor.Worker", "src\PdfExtractor.Worker\PdfExtractor.Worker.csproj", "{39EDF9A9-8DC2-4479-857B-9DFCBBA42AE8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfExtractor.Migrations", "src\PdfExtractor.Migrations\PdfExtractor.Migrations.csproj", "{5125ABA3-B893-4DEB-A599-83D94BC23146}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfExtractor.Migrations.Runner", "src\PdfExtractor.Migrations.Runner\PdfExtractor.Migrations.Runner.csproj", "{9BD3FE5D-7CDF-404D-BF4B-3213A0E48DF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,10 +36,20 @@ Global
 		{39EDF9A9-8DC2-4479-857B-9DFCBBA42AE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39EDF9A9-8DC2-4479-857B-9DFCBBA42AE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39EDF9A9-8DC2-4479-857B-9DFCBBA42AE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5125ABA3-B893-4DEB-A599-83D94BC23146}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5125ABA3-B893-4DEB-A599-83D94BC23146}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5125ABA3-B893-4DEB-A599-83D94BC23146}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5125ABA3-B893-4DEB-A599-83D94BC23146}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BD3FE5D-7CDF-404D-BF4B-3213A0E48DF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BD3FE5D-7CDF-404D-BF4B-3213A0E48DF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BD3FE5D-7CDF-404D-BF4B-3213A0E48DF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BD3FE5D-7CDF-404D-BF4B-3213A0E48DF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F9137FFB-EEB8-4B5A-A256-2A267864A5E6} = {5EA3E489-029E-4DAD-9C01-FF7E3D42B1FA}
 		{72F569D7-B560-4C75-912F-51605FA6020E} = {5EA3E489-029E-4DAD-9C01-FF7E3D42B1FA}
 		{39EDF9A9-8DC2-4479-857B-9DFCBBA42AE8} = {5EA3E489-029E-4DAD-9C01-FF7E3D42B1FA}
+		{5125ABA3-B893-4DEB-A599-83D94BC23146} = {5EA3E489-029E-4DAD-9C01-FF7E3D42B1FA}
+		{9BD3FE5D-7CDF-404D-BF4B-3213A0E48DF0} = {5EA3E489-029E-4DAD-9C01-FF7E3D42B1FA}
 	EndGlobalSection
 EndGlobal

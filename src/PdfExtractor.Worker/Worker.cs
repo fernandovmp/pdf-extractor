@@ -14,13 +14,15 @@ public class Worker : BackgroundService
     private readonly IOptions<Configuracao> _configuracao;
     private readonly IFilaPdf _filaExtracao;
     private readonly IStorage _storage;
+    private readonly IExtracaoPdfRepository _extracaoPdfRepository;
 
-    public Worker(ILogger<Worker> logger, IOptions<Configuracao> configuracao, IFilaPdf filaExtracao, IStorage storage)
+    public Worker(ILogger<Worker> logger, IOptions<Configuracao> configuracao, IFilaPdf filaExtracao, IStorage storage, IExtracaoPdfRepository extracaoPdfRepository)
     {
         _logger = logger;
         _configuracao = configuracao;
         _filaExtracao = filaExtracao;
         _storage = storage;
+        _extracaoPdfRepository = extracaoPdfRepository;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -45,6 +47,8 @@ public class Worker : BackgroundService
         string caminhoZip = Path.Combine("zips", nomeArquivo);
         try
         {
+            await _extracaoPdfRepository.AtualizarStatus(tarefa.Id, "processando")
+                .ConfigureAwait(false);
             using Stream pdfStream = _storage.ObterStream(caminhoPdf, FileShare.None);
             using Stream fileStream = _storage.CriarArquivo(caminhoZip);
             using var zip = new ZipArchive(fileStream, ZipArchiveMode.Create, leaveOpen: false);
@@ -62,11 +66,15 @@ public class Worker : BackgroundService
                 image.Write(entryStream);
                 page++;
             }
+            await _extracaoPdfRepository.AtualizarStatus(tarefa.Id, "finalizado")
+                .ConfigureAwait(false);
         }
         catch (System.Exception e)
         {
             _logger.LogError(e, e.Message);
             _storage.ApagarArquivo(caminhoZip);
+            await _extracaoPdfRepository.AtualizarStatus(tarefa.Id, "erro")
+                .ConfigureAwait(false);
         }
     }
 }
