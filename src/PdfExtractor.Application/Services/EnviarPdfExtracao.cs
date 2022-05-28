@@ -9,24 +9,24 @@ public class EnviarPdfExtracao : IEnviarPdf
 {
     private readonly IFilaPdf _filaExtracao;
     private readonly IOptions<Configuracao> _configuracao;
+    private readonly IStorage _storage;
 
-    public EnviarPdfExtracao(IFilaPdf filaExtracao, IOptions<Configuracao> configuracao)
+    public EnviarPdfExtracao(IFilaPdf filaExtracao, IOptions<Configuracao> configuracao, IStorage storage)
     {
         _filaExtracao = filaExtracao;
         _configuracao = configuracao;
+        _storage = storage;
     }
 
     public async Task<Guid> EnviarPdfAsync(EnviarPdfDTO enviarPdfDTO)
     {
-        string caminho = Path.Combine(_configuracao.Value.CaminhoStorage ?? "/storage", "pdfs");
-        Directory.CreateDirectory(caminho);
         Guid id = Guid.NewGuid();
-        string caminhoArquivo = Path.Combine(caminho, id.ToString("N"));
-        using var stream = System.IO.File.Create(caminhoArquivo);
+        string caminhoArquivo = Path.Combine("pdfs", id.ToString("N"));
         if (enviarPdfDTO.PdfStream is null)
         {
             throw new ArgumentNullException("Arquivo obrigatório");
         }
+        using var stream = _storage.CriarArquivo(caminhoArquivo);
         await enviarPdfDTO.PdfStream.CopyToAsync(stream)
             .ConfigureAwait(false);
         try
@@ -41,7 +41,7 @@ public class EnviarPdfExtracao : IEnviarPdf
         }
         catch (System.Exception)
         {
-            File.Delete(caminhoArquivo);
+            _storage.ApagarArquivo(caminhoArquivo);
             throw;
         }
         return id;

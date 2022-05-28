@@ -13,11 +13,14 @@ public class Worker : BackgroundService
     private readonly ILogger<Worker> _logger;
     private readonly IOptions<Configuracao> _configuracao;
     private readonly IFilaPdf _filaExtracao;
-    public Worker(ILogger<Worker> logger, IOptions<Configuracao> configuracao, IFilaPdf filaExtracao)
+    private readonly IStorage _storage;
+
+    public Worker(ILogger<Worker> logger, IOptions<Configuracao> configuracao, IFilaPdf filaExtracao, IStorage storage)
     {
         _logger = logger;
         _configuracao = configuracao;
         _filaExtracao = filaExtracao;
+        _storage = storage;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -38,14 +41,12 @@ public class Worker : BackgroundService
             .ConfigureAwait(false);
         string nomeArquivo = tarefa.Id.ToString("N");
         _logger.LogInformation($"Processando {nomeArquivo}");
-        string storage = _configuracao.Value.CaminhoStorage ?? "/storage";
-        string caminhoPdf = Path.Combine(storage, "pdfs", nomeArquivo);
-        string caminhoZip = Path.Combine(storage, "zips", nomeArquivo);
+        string caminhoPdf = Path.Combine("pdfs", nomeArquivo);
+        string caminhoZip = Path.Combine("zips", nomeArquivo);
         try
         {
-            Directory.CreateDirectory(Path.Combine(storage, "zips"));
-            using Stream pdfStream = File.Open(caminhoPdf, FileMode.Open, FileAccess.Read, FileShare.None);
-            using Stream fileStream = File.Create(caminhoZip);
+            using Stream pdfStream = _storage.ObterStream(caminhoPdf, FileShare.None);
+            using Stream fileStream = _storage.CriarArquivo(caminhoZip);
             using var zip = new ZipArchive(fileStream, ZipArchiveMode.Create, leaveOpen: false);
             var settings = new MagickReadSettings();
             settings.Density = new Density(300, 300);
@@ -63,17 +64,8 @@ public class Worker : BackgroundService
         }
         catch (System.Exception e)
         {
-
             _logger.LogError(e, e.Message);
-            DeleteIfExists(caminhoZip);
-        }
-    }
-
-    private void DeleteIfExists(string path)
-    {
-        if (File.Exists(path))
-        {
-            File.Delete(path);
+            _storage.ApagarArquivo(caminhoZip);
         }
     }
 }

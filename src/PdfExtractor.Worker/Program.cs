@@ -10,6 +10,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.Configure<Configuracao>(context.Configuration.GetSection("Configuracao"));
         services.AddSingleton<IFilaPdf, FilaExtracao>();
         services.AddSingleton<IEnviarPdf, EnviarPdfExtracao>();
+        services.AddSingleton<IStorage, Storage>();
     })
     .Build();
 
