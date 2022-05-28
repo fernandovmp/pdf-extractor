@@ -57,6 +57,7 @@ public class Worker : BackgroundService
             {
                 var zipEntry = zip.CreateEntry($"{page:000000}.png");
                 using Stream entryStream = zipEntry.Open();
+                image.Alpha(AlphaOption.Remove);
                 image.Format = MagickFormat.Png;
                 image.Write(entryStream);
                 page++;
