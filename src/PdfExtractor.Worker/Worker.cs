@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using PdfExtractor.Application.Interfaces;
 using PdfExtractor.Application.Model;
 using PdfExtractor.Application.Options;
-using StackExchange.Redis;
 
 namespace PdfExtractor.Worker;
 
@@ -27,20 +26,36 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(_configuracao.Value.ConexaoRedis);
-        ISubscriber subscriber = redis.GetSubscriber();
-        ChannelMessageQueue canal = await subscriber.SubscribeAsync("extracao");
-        canal.OnMessage(ExtrairImagensPdf);
-        _logger.LogInformation("Inscreveu");
-        await canal.Completion;
-        await canal.UnsubscribeAsync();
-        _logger.LogInformation("Desinscreveu");
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                PdfExtractorDTO? tarefa = await _filaExtracao.ObterProximoDaFilaAsync()
+                    .ConfigureAwait(false);
+                if (tarefa is not null)
+                {
+                    await ExtrairImagensPdf(tarefa)
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    _logger.LogInformation("Nenhuma tarefa na fila");
+                    await Task.Delay(_configuracao.Value.TempoIntervaloProcessamento)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (System.Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                await Task.Delay(_configuracao.Value.TempoIntervaloProcessamento)
+                    .ConfigureAwait(false);
+            }
+
+        }
     }
 
-    private async Task ExtrairImagensPdf(ChannelMessage mensagem)
+    private async Task ExtrairImagensPdf(PdfExtractorDTO tarefa)
     {
-        PdfExtractorDTO tarefa = await _filaExtracao.ObterProximoDaFilaAsync()
-            .ConfigureAwait(false);
         string nomeArquivo = tarefa.Id.ToString("N");
         _logger.LogInformation($"Processando {nomeArquivo}");
         string caminhoPdf = Path.Combine("pdfs", nomeArquivo);

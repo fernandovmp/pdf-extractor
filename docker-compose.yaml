@@ -14,6 +14,10 @@ services:
       - ./volumes/storage:/storage
     links:
       - redis
+      - postgres
+    depends_on:
+      - postgres
+      - redis
   worker:
     build:
       context: .
@@ -22,9 +26,14 @@ services:
       Configuracao__ConexaoPostgres: "Host=postgres;Port=5432;Database=PdfExtractor;User Id=postgres;Password=postgres1234;"
       Configuracao__CaminhoStorage: "/storage"
       Configuracao__ConexaoRedis: "redis:6379"
+      Configuracao__TempoIntervaloProcessamento: 1000
     volumes:
       - ./volumes/storage:/storage
     links:
+      - redis
+      - postgres
+    depends_on:
+      - postgres
       - redis
   migration_runner:
     build:
@@ -32,8 +41,10 @@ services:
       dockerfile: src/PdfExtractor.Migrations.Runner/Dockerfile
     environment:
       Configuracao__ConexaoPostgres: "Host=postgres;Port=5432;Database=PdfExtractor;User Id=postgres;Password=postgres1234;"
-      Configuracao__QtdeTentativas: 3
+      Configuracao__QtdeTentativas: 5
     links:
+      - postgres
+    depends_on:
       - postgres
   redis:
     image: redis
@@ -44,5 +55,7 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres1234
       POSTGRES_DB: PdfExtractor
+    ports:
+      - "5432:5432"
     volumes:
       - ./volumes/postgres/data:/var/lib/postgresql/data

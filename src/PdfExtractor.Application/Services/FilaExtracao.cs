@@ -20,23 +20,20 @@ public class FilaExtracao : IFilaPdf
     {
         using ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(_configuracao.Value.ConexaoRedis);
         IDatabase database = redis.GetDatabase();
-        ISubscriber sub = redis.GetSubscriber();
         string json = JsonSerializer.Serialize(pdf);
         await database.ListLeftPushAsync("pdf", json)
-            .ConfigureAwait(false);
-        await sub.PublishAsync("extracao", pdf.Id.ToString());
+            .ConfigureAwait(false); ;
     }
 
-    public async Task<PdfExtractorDTO> ObterProximoDaFilaAsync()
+    public async Task<PdfExtractorDTO?> ObterProximoDaFilaAsync()
     {
         using ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(_configuracao.Value.ConexaoRedis);
         IDatabase database = redis.GetDatabase();
-        ISubscriber sub = redis.GetSubscriber();
         string json = await database.ListLeftPopAsync("pdf")
             .ConfigureAwait(false);
         if (json is null)
         {
-            throw new Exception("");
+            return null;
         }
         return JsonSerializer.Deserialize<PdfExtractorDTO>(json)!;
     }
