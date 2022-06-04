@@ -22,6 +22,7 @@ public class PdfController : ControllerBase
         _extracaoPdfRepository = extracaoPdfRepository;
     }
 
+    [HttpPost]
     public async Task<ActionResult> PostPdf([FromForm] PostPdfRequest request)
     {
         Guid id = await _enviarPdf.EnviarPdfAsync(new EnviarPdfDTO
